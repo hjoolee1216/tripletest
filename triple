@@ -1,0 +1,83 @@
+테이블 설계 
+
+사용자 포인트 현황 테이블 
+CREATE TABLE MEMBER_POINT_STATE(ID INT AUTO_INCREMENT PRIMARY KEY, 
+USER_ID VARCHAR(64) NOT NULL,
+PLACE_ID VARCHAR(64) NOT NULL,
+CURRENT_POINT INT DEFAULT 0, 현재 유용 포인트 
+ACCUM_POINT INT DEFAULT 0, 누적 포인트 
+DELETE_POINT INT DEFAULT 0, 삭제 포인트 
+REG_DATE DATETIME,
+MOD_DATE DATETIME)
+
+CREATE INDEX idx1 ON MEMBER_POINT_STATE
+(USER_ID)
+
+리뷰테이블 
+CREATE TABLE REVIEW(ID INT AUTO_INCREMENT
+PRIMARY KEY,
+REVIEW_ID VARCHAR(64) NOT NULL, 리뷰아이디 
+CONTENT VARCHAR(100), 리뷰 내용 
+PHOTO VARCHAR(100), 첨부사진을 ,로 구분하여 저장 
+PLACE_ID VARCHAR(64) NOT NULL 장소 아이디 
+REG_DATE DATETIME,
+MOD_DATE DATETIME,
+DEL_YN INT DEFAULT 0) 리뷰 삭제 여부 
+
+CREATE INDEX idx2 ON REVIEW
+(REVIEW_ID, PLACE_ID)
+CREATE INDEX idx3 ON REVIEW
+(REVIEW_ID)
+
+
+사용자 리뷰 로그 테이블 
+CREATE TABLE MEMBER_POINT_LOG(LOG_ID INT
+PRIMARY KEY,
+USER_ID VARCHAR(64) NOT NULL,
+POINT INT, 증가되거나 감소된 포인트 
+TYPE CHAR(1) DEFAULT ‘I’(in)//in-증가 out-감소 NOT NULL,
+REG_DATE DATETIME
+
+)
+
+
+		1. 포인트 적립/차감 api 
+		
+		int point = 0;
+		
+		if(type = ADD) {
+			reviewModel  = getUserReviewByPlaceId(userId, placeId);
+			if(reviewModel == null) {
+				if(content.length() >= 1) {
+					point ++;
+				}
+				if(attachedPhotoIds.length >1) {
+					point ++;
+				}
+				if(firstPlaceReview(placeId)) {
+					point++;
+				}
+			}
+		}else if(type=DELETE) 
+		{
+			reviewedModel = getUserReviewByReviewID(reviewId);
+			deleteReviewPoint(reviewdModel.getPoint, reviewId);
+		}else {
+			reviewedModel = getUserReviewByReviewID(reviewId);
+			if(reviewdModel.photo.size() < attachedPhotoId.length()) {
+				point++;
+			}else if(reviewModel.photo.size()>0 && attachedPhotoId.length()==0) {
+				deleteReviewPoint(1, reviewId);
+				
+			}
+		}
+
+
+		2. 포인트 조회 api 
+		
+		간단하게 user_id 로 현재 CURRENT_POINT를 조회하면 된다. 
+		
+		
+
+
+		
